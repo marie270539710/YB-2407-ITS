@@ -1,31 +1,28 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Interactive Parking Slot Selection</title>
-    <style>
-        button {
-            padding: 10px 15px;
-            margin: 5px;
-            cursor: pointer;
-        }
-        .selected {
-            background-color: #4CAF50;
-            color: white;
-        }
-    </style>
-</head>
-<body>
-    <h2>Select Available Parking Slot:</h2>
-    <form method="POST">
-        {% csrf_token %}
-        {% for slot in available_slots %}
-            <button type="submit" name="slot" value="{{ slot }}" class="{% if slot == selected_slot %}selected{% endif %}">
-                {{ slot }}
-            </button>
-        {% endfor %}
-    </form>
+{% extends 'navigation/base.html' %}
 
-    <h3>Parking Lot Visualization</h3>
-    <img src="data:image/png;base64,{{ graphic }}" alt="Parking Lot Map"/>
-</body>
-</html>
+{% block content %}
+<div class="container mt-5">
+  <h2>Select Available Parking Slot</h2>
+  <form method="POST" class="mb-4">
+    {% csrf_token %}
+    {% for slot in available_slots %}
+      <button name="slot" value="{{ slot }}" class="btn {% if slot == selected_slot %}btn-success{% else %}btn-outline-secondary{% endif %}">
+        {{ slot }}
+      </button>
+    {% endfor %}
+  </form>
+
+  <div class="card">
+  {% if graphic %}
+        <div class="card-body text-center">
+            <div class="overflow-auto">
+                <img src="data:image/png;base64,{{ graphic }}" 
+                     class="img-fluid"
+                     style="width:50%; height:1000px;"
+                     alt="Parking Lot Map">
+            </div>
+        </div>
+    {% endif %}
+    <a href="{% url 'user_settings' %}" class="btn btn-secondary mt-3">User Settings</a>
+</div>
+{% endblock %}
