@@ -28,12 +28,19 @@
                     progressBar.innerText = percent + '%';
                 }
     
-                // Show or hide alert
-                const alertBox = document.getElementById("time-alert");
-                if (data.alert) {
-                    alertBox.classList.remove("d-none");
+                // Show expired alert if time is up
+                const expiredAlert = document.getElementById("expired-alert");
+                if (data.expired) {
+                    expiredAlert.classList.remove("d-none");
                 } else {
-                    alertBox.classList.add("d-none");
+                    expiredAlert.classList.add("d-none");
+                    // Show or hide alert
+                    const alertBox = document.getElementById("time-alert");
+                    if (data.alert) {
+                        alertBox.classList.remove("d-none");
+                    } else {
+                        alertBox.classList.add("d-none");
+                    }
                 }
             });
         

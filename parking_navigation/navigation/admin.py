@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, ParkingLog, AvailableSlot
 
 # Inline for Profile – show with User in admin
 class ProfileInline(admin.StackedInline):
@@ -32,3 +32,37 @@ admin.site.register(User, UserAdmin)
 
 # Register Profile separately (optional, not required if using inline)
 # admin.site.register(Profile)
+
+@admin.register(ParkingLog)
+class ParkingLogAdmin(admin.ModelAdmin):
+    list_display = ('user', 'slot', 'arrival_time', 'exit_time', 'autoexit')
+    list_filter = ('user__username', 'slot')
+    search_fields = ('user__username', 'slot')
+    ordering = ('-arrival_time',)
+
+    # Disable Add, Edit, Delete
+    def has_add_permission(self, request):
+        return False  # Prevent adding new logs manually
+
+    def has_change_permission(self, request, obj=None):
+        return False  # Prevent editing logs
+
+    def has_delete_permission(self, request, obj=None):
+        return False  # Prevent deleting logs
+
+@admin.register(AvailableSlot)
+class AvailableSlotAdmin(admin.ModelAdmin):
+    list_display = ('timestamp', 'slots')
+    list_filter = ('timestamp', 'slots')
+    search_fields = ('timestamp', 'slots')
+    ordering = ('-timestamp',)
+
+    # Disable Add, Edit, Delete
+    def has_add_permission(self, request):
+        return False  # Prevent adding new logs manually
+
+    def has_change_permission(self, request, obj=None):
+        return False  # Prevent editing logs
+
+    def has_delete_permission(self, request, obj=None):
+        return False  # Prevent deleting logs

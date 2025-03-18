@@ -1,17 +1,77 @@
-{% extends 'navigation/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Parking Navigation</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- At the bottom of your base.html -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>   
+<body>
 
-{% block content %}
-<div class="container mt-5">
-  <h2>User Registration</h2>
-  <form method="post">
-    {% csrf_token %}
-    {% for field in form %}
-      <div class="mb-3">
-        <label>{{ field.label }}</label>
-        {{ field }}
-        {% if field.errors %}<div class="text-danger">{{ field.errors }}</div>{% endif %}
-      {% endfor %}
-    <button type="submit" class="btn btn-primary">Register</button>
-  </form>
-</div>
-{% endblock %}
+<section class="bg-light py-3 py-md-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5 col-xxl-4">
+        <div class="card border border-light-subtle rounded-3 shadow-sm">
+          <div class="card-body p-3 p-md-4 p-xl-5">
+            <div class="text-center mb-3">
+              <a href="#!">
+                <img src="{% static 'navigation/logo.png' %}" alt="ABCS Parking Navigation" height="100">
+              </a>
+            </div>
+            <h2 class="fs-6 fw-normal text-center text-secondary mb-4">Create Account</h2>
+            <form method="POST" action="{% url 'register' %}">
+              {% csrf_token %}
+              {% if form.errors %}
+                <div class="alert alert-danger">
+                  <ul class="mb-0">
+                    {% for field in form %}
+                      {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                      {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                      <li>{{ error }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+              <div class="row gy-2 overflow-hidden">
+                <div class="col-12">
+                  <div class="form-floating mb-3">
+                    {{ form.username|add_class:"form-control" }}
+                    <label for="{{ form.username.id_for_label }}">User ID</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-floating mb-3">
+                    {{ form.password1|add_class:"form-control" }}
+                    <label for="{{ form.password1.id_for_label }}">Password</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="form-floating mb-3">
+                    {{ form.password2|add_class:"form-control" }}
+                    <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="d-grid my-3">
+                    <button class="btn btn-primary btn-lg" type="submit">Register</button>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <p class="m-0 text-secondary text-center">Already a member? <a href="{% url 'login' %}" class="link-primary text-decoration-none">Login</a></p>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</body>
+</html>

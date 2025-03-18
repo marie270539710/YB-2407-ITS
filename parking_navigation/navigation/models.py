@@ -16,6 +16,23 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username}'s Profile"
 
+class ParkingLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    slot = models.CharField(max_length=20)
+    arrival_time = models.DateTimeField(null=True, blank=True)
+    exit_time = models.DateTimeField(null=True, blank=True)
+    autoexit = models.BooleanField(default=False) 
+
+    def __str__(self):
+        return f"{self.user.username} - {self.slot} ({self.arrival_time.strftime('%Y-%m-%d %H:%M')})"
+
+class AvailableSlot(models.Model):
+    slots = models.TextField('Available Slots') 
+    timestamp = models.DateTimeField(auto_now_add=True) 
+
+    def __str__(self):
+        return f"{self.slot}"
+
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
