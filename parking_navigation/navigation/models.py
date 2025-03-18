@@ -31,7 +31,7 @@ class AvailableSlot(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True) 
 
     def __str__(self):
-        return f"{self.slot}"
+        return f"{self.slots}"
 
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):

@@ -43,6 +43,36 @@
                     }
                 }
             });
+
+            fetch("{% url 'fetch_slots' %}")
+                .then(response => response.json())
+                .then(data => {
+                    const slotContainer = document.getElementById("slot-buttons");
+                    let buttonsHtml = "";
+                    data.available_slots.forEach(slot => {
+                        buttonsHtml += `
+                        <button name="slot" value="${slot}" class="btn btn-outline-secondary me-2 mb-2">
+                            ${slot}
+                        </button>`;
+                    });
+                    
+                    if (data.ev_slots.length > 0) {
+                        buttonsHtml += `<button name="slot" value="ev" class="btn btn-outline-secondary me-2 mb-2">EV</button>`;
+                    }
+
+                    if (data.disabled_slots.length > 0) {
+                        buttonsHtml += `<button name="slot" value="disabled" class="btn btn-outline-secondary me-2 mb-2">Disabled</button>`;
+                    }
+
+                    if (data.near_entrance_slots.length > 0) {
+                        buttonsHtml += `<button name="slot" value="entrance" class="btn btn-outline-secondary me-2 mb-2">Near to Entrance</button>`;
+                    }
+
+                    if (data.near_exit_slots.length > 0) {
+                        buttonsHtml += `<button name="slot" value="exit" class="btn btn-outline-secondary me-2 mb-2">Near to Exit</button>`;
+                    }
+                    slotContainer.innerHTML = buttonsHtml;
+                });
         
         const now = new Date();
         let hours = now.getHours();
@@ -80,6 +110,31 @@
       </div>
   </div>
 </nav>
+
+<div class="pos-f-t">
+    <div class="collapse" id="navbarToggleExternalContent">
+      <div class="bg-dark p-4">
+        <h4 class="text-white">Parking Navigation</h4>
+        <span class="text-muted">ABCS Shopping Centre</span>
+        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" href="#">Disabled</a>
+            </li>
+          </ul>
+      </div>
+    </div>
+    <nav class="navbar navbar-dark bg-dark">
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </nav>
+  </div>
 
 <div class="container mt-4">
     {% block content %}

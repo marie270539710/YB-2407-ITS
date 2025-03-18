@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from .utils import find_shortest_path, plot_parking_lot
-from .models import ParkingLog
+from .models import ParkingLog, AvailableSlot
 import matplotlib.pyplot as plt
 import numpy as np
 import io
@@ -43,27 +43,26 @@ slot_coordinates = {
     'D1': (2, 3),
 }
 
+parking_ids = {1: "P1", 2: "P2", 3: "D1", 4: "P4", 5: "P3", 6: "EV"}
+
+available_slots = ['P1', 'P2', 'P3', 'P4', 'EV', 'D1']
+near_entrance_slots = ['P1', 'P2']
+near_exit_slots = ['P3', 'P4']
+disabled_slots = ['D1']
+ev_slots = ['EV']
+
+occupied_slots = None
+available_slots_near_entrance = None
+available_slots_near_exit = None
+available_disabled_slots = None
+available_ev_slots = None
+
 @login_required(login_url='/accounts/login/')
 @csrf_exempt
 def parking_map(request):
     user_profile = request.user.profile
 
-    available_slots = ['P1', 'P2', 'P3', 'P4', 'EV', 'D1']
-    near_entrance_slots = ['P1', 'P2']
-    near_exit_slots = ['P3', 'P4']
-    occupied_slots = ['P1']
-    disabled_slots = ['D1']
-    ev_slots = ['EV']
-
-    # Remove occupied slots dynamically from near entrance/exit lists
-    available_slots_near_entrance = [slot for slot in near_entrance_slots if slot not in occupied_slots]
-    available_slots_near_exit = [slot for slot in near_exit_slots if slot not in occupied_slots]
-    available_disabled_slots = [slot for slot in disabled_slots if slot not in occupied_slots]
-    available_ev_slots = [slot for slot in ev_slots if slot not in occupied_slots]
-
-    available_slots = [slot for slot in available_slots if slot not in occupied_slots]
-    available_slots = [slot for slot in available_slots if slot not in disabled_slots]
-    available_slots = [slot for slot in available_slots if slot not in ev_slots]
+    available_slots, occupied_slots, available_slots_near_entrance, available_slots_near_exit, available_disabled_slots, available_ev_slots= get_available_slots()
 
     path_to_parking = None
     path_to_exit = None
@@ -271,4 +270,45 @@ def parking_status(request):
         'remaining_minutes': time_remaining_minutes,
     }
 
+    return JsonResponse(data)
+
+def get_available_slots():
+    last_slot = AvailableSlot.objects.latest('timestamp')  # or 'created_at' if available
+    slot_code = last_slot.slots
+    slot_keys = [int(code) for code in slot_code.split('|') if code.strip().isdigit()]
+    avail_slots = [parking_ids.get(key) for key in slot_keys if key in parking_ids]
+
+    available_slots = ['P1', 'P2', 'P3', 'P4', 'EV', 'D1']
+    occupied_slots = [slot for slot in available_slots if slot not in avail_slots]
+
+    # Remove occupied slots dynamically from near entrance/exit lists
+    available_slots_near_entrance = [slot for slot in near_entrance_slots if slot not in occupied_slots]
+    available_slots_near_exit = [slot for slot in near_exit_slots if slot not in occupied_slots]
+    available_disabled_slots = [slot for slot in disabled_slots if slot not in occupied_slots]
+    available_ev_slots = [slot for slot in ev_slots if slot not in occupied_slots]
+
+    available_slots = [slot for slot in available_slots if slot not in occupied_slots]
+    available_slots = [slot for slot in available_slots if slot not in disabled_slots]
+    available_slots = [slot for slot in available_slots if slot not in ev_slots]
+
+    return available_slots, occupied_slots, available_slots_near_entrance, available_slots_near_exit, available_disabled_slots, available_ev_slots
+
+def fetch_slots(request):
+    # last_slot = AvailableSlot.objects.latest('timestamp')  # or 'created_at' if available
+    # slot_code = last_slot.slots
+    
+    # available_slots = list(AvailableSlot.objects.filter(status='available').values_list('slot_code', flat=True))
+    available_slots, occupied_slots, available_slots_near_entrance, available_slots_near_exit, available_disabled_slots, available_ev_slots= get_available_slots()
+
+    # You can also include ev_slots, disabled_slots, etc.
+    data = {
+        'occupied_slots': occupied_slots,
+        'available_slots': available_slots,
+        'test': "available_slots",
+        'near_entrance_slots': available_slots_near_entrance,
+        'near_exit_slots': available_slots_near_exit,
+        'disabled_slots': available_disabled_slots,
+        'ev_slots': available_ev_slots,
+        # Add other slot categories as needed
+    }
     return JsonResponse(data)

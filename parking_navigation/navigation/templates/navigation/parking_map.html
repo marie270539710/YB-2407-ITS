@@ -94,7 +94,7 @@
         </button>
     </div>
     {% else %}
-
+    <div id="slot-buttons">
         {% for slot in available_slots %}
         <button name="slot" value="{{ slot }}" class="btn {% if slot == selected_slot %}btn-success{% else %}btn-outline-secondary{% endif %}">
             {{ slot }}
@@ -120,7 +120,7 @@
             Near Exit
         </button>
         {% endif %}
-
+    </div>
     {% endif %}
   </form>
 
