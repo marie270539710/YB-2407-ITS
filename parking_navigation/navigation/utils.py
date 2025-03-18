@@ -32,21 +32,21 @@ def find_shortest_path(parking_lot, start, destination):
 
     return None
 
-def plot_parking_lot(parking_lot, path_to_parking, path_to_exit, path_to_mall, chosen_slot, exit_point, occupied_slots, disabled_slots, ev_slots):
+def plot_parking_lot(parking_lot, path_to_parking, path_to_exit, path_to_mall, chosen_slot, selected_slot, exit_point, occupied_slots, disabled_slots, ev_slots):
     rows, cols = len(parking_lot), len(parking_lot[0])
     grid = np.zeros((rows, cols, 3))
 
     colors = {
         'E': (1, 1, 1),
         'O': (0, 0, 0),
-        'ENTER': (0, 0, 1),
+        'ENTER': (1, 1, 1),
         'P1': (1, 0.5, 0),
         'P2': (1, 0.5, 0),
         'P3': (1, 0.5, 0),
         'P4': (1, 0.5, 0),
         'EV': (1, 0.5, 0),
         'D1': (1, 0.5, 0),
-        'EXIT': (1, 0, 0)
+        'EXIT': (1, 1, 1)
     }
 
     for i in range(rows):
@@ -62,17 +62,24 @@ def plot_parking_lot(parking_lot, path_to_parking, path_to_exit, path_to_mall, c
     # Place random car images on occupied slots
     for i, row in enumerate(parking_lot):
         for j, slot in enumerate(row):
+            if slot == "EXIT":
+                car_img = mpimg.imread(os.path.join(static_path, "exit.png"))
+                plt.imshow(car_img, extent=(j-0.4, j+0.4, i-0.3, i+0.3))
+            if slot == "ENTER":
+                car_img = mpimg.imread(os.path.join(static_path, "entrance.png"))
+                plt.imshow(car_img, extent=(j-0.4, j+0.4, i-0.3, i+0.3))
             if slot in disabled_slots:
-                car_img_file = np.random.choice(car_images)
                 car_img = mpimg.imread(os.path.join(static_path, "disabled.png"))
                 plt.imshow(car_img, extent=(j-0.2, j+0.2, i-0.2, i+0.2))
             if slot in ev_slots:
-                car_img_file = np.random.choice(car_images)
                 car_img = mpimg.imread(os.path.join(static_path, "ev.png"))
                 plt.imshow(car_img, extent=(j-0.2, j+0.2, i-0.2, i+0.2))
             if slot in occupied_slots:
                 car_img_file = np.random.choice(car_images)
                 car_img = mpimg.imread(os.path.join(static_path, car_img_file))
+                plt.imshow(car_img, extent=(j-0.3, j+0.3, i-0.4, i+0.4), aspect='auto')
+            if slot == selected_slot:
+                car_img = mpimg.imread(os.path.join(static_path, "carslot.png"))
                 plt.imshow(car_img, extent=(j-0.3, j+0.3, i-0.4, i+0.4), aspect='auto')
 
     if path_to_parking:
@@ -91,11 +98,11 @@ def plot_parking_lot(parking_lot, path_to_parking, path_to_exit, path_to_mall, c
         x_shifted = [x + 0.1 for x in x_coords]
         plt.plot(y_shifted, x_shifted, color='blue', linewidth=3, label="To Mall")
 
-    if chosen_slot:
-        plt.scatter(chosen_slot[1], chosen_slot[0], c='yellow', s=100, edgecolors='black', label='Selected Slot')
+    # if chosen_slot:
+    #     plt.scatter(chosen_slot[1], chosen_slot[0], c='yellow', s=100, edgecolors='black', alpha=0.0, label='Selected Slot')
 
-    if exit_point:
-        plt.scatter(exit_point[1], exit_point[0], c='red', s=100, edgecolors='black')
+    # if exit_point:
+    #     plt.scatter(exit_point[1], exit_point[0], c='red', s=100, edgecolors='black', alpha=0.0, label='Parking Exit')
 
     plt.gca().invert_yaxis()
     plt.legend()

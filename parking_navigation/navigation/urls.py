@@ -6,4 +6,5 @@ urlpatterns = [
     path('parking/', views.parking_map, name='parking_map'),
     path('register/', views.register, name='register'),
     path('settings/', views.user_settings, name='user_settings'),
+    path('parking_status/', views.parking_status, name='parking_status'),
 ]
