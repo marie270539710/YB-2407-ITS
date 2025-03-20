@@ -29,7 +29,7 @@ parking_lot_layout = [
     ['ENTER', 'O', 'O', 'O', 'O', 'O'],
     ['E', 'E', 'E', 'E', 'E', 'O'],
     ['E', 'P1', 'P2', 'D1', 'E', 'O'],
-    ['E', 'O', 'O', 'O', 'E', 'O'],
+    ['E', 'O', 'O', 'O', 'X', 'MALL'],
     ['E', 'EV', 'P3', 'P4', 'E', 'O'],
     ['E', 'E', 'E', 'E', 'E', 'EXIT']
 ]
@@ -245,7 +245,45 @@ def parking_status(request):
     user_profile = request.user.profile
     alert_needed = False
     expired = False
+    parking_ended = False
     time_remaining_minutes = None
+
+    # Automatically end parking if user's slot is now available
+    available_slots, occupied_slots, available_slots_near_entrance, available_slots_near_exit, available_disabled_slots, available_ev_slots= get_available_slots()
+    if user_profile.selected_slot:
+        #arrival_dt = timezone.make_aware(datetime.combine(timezone.localdate(), user_profile.arrival_time))
+        max_arrival_dt = user_profile.arrival_time + timedelta(minutes=3)
+        current_dt = timezone.localtime()
+
+        if current_dt > max_arrival_dt and user_profile.selected_slot not in occupied_slots:
+            # Fetch existing log
+            existing_log = ParkingLog.objects.filter(
+                user=request.user,
+                slot=user_profile.selected_slot,
+                arrival_time=user_profile.arrival_time
+            ).first()
+
+            if existing_log:
+                existing_log.exit_time = max_arrival_dt
+                existing_log.autoexit = True
+                existing_log.save()
+            else:
+                ParkingLog.objects.create(
+                    user=request.user,
+                    slot=user_profile.selected_slot,
+                    arrival_time=user_profile.arrival_time,
+                    exit_time=max_arrival_dt,
+                    autoexit=True
+                )
+
+            # Clear parking session from profile
+            user_profile.selected_slot = ''
+            user_profile.arrival_time = None
+            user_profile.exit_time = None
+            user_profile.save()
+
+            parking_ended = True
+
 
     if user_profile.arrival_time and user_profile.exit_time:
         now_dt = timezone.now()  # Timezone-aware current datetime
@@ -262,6 +300,7 @@ def parking_status(request):
             time_remaining_minutes = int(remaining_seconds // 60)
 
     data = {
+        'parking_ended': parking_ended,
         'current_time': timezone.localtime().strftime('%I:%M %p'),  # Local time for user
         'arrival_time': timezone.localtime(user_profile.arrival_time).strftime('%I:%M %p') if user_profile.arrival_time else '',
         'exit_time': timezone.localtime(user_profile.exit_time).strftime('%I:%M %p') if user_profile.exit_time else '',

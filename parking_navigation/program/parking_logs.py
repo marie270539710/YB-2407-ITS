@@ -3,7 +3,7 @@ import sqlite3
 from datetime import datetime
 
 # 🔹 Open Serial connection (Check COM port in Arduino IDE > Tools > Port)
-ser = serial.Serial('/dev/cu.usbserial-110', 9600)  # Change 'COM3' to your port on Windows, or '/dev/ttyUSB0' on Linux/Mac
+ser = serial.Serial('/dev/cu.usbserial-1120', 9600)  # Change 'COM3' to your port on Windows, or '/dev/ttyUSB0' on Linux/Mac
 
 # 🔹 Connect to SQLite database (creates file if not exists)
 conn = sqlite3.connect('/Users/marie/AquilaDrive/Yoobee/MSE806/YB-2407-ITS/parking_navigation/db.sqlite3')

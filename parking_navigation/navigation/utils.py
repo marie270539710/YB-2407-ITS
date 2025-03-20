@@ -27,7 +27,7 @@ def find_shortest_path(parking_lot, start, destination):
 
         for dx, dy in directions:
             nx, ny = x + dx, y + dy
-            if 0 <= nx < rows and 0 <= ny < cols and (parking_lot[nx][ny] == 'E' or (nx, ny) == destination) and (nx, ny) not in visited:
+            if 0 <= nx < rows and 0 <= ny < cols and (parking_lot[nx][ny] == 'E' or parking_lot[nx][ny] == 'X' or (nx, ny) == destination) and (nx, ny) not in visited:
                 queue.append(((nx, ny), path + [current]))
 
     return None
@@ -39,15 +39,19 @@ def plot_parking_lot(parking_lot, path_to_parking, path_to_exit, path_to_mall, c
     colors = {
         'E': (1, 1, 1),
         'O': (0, 0, 0),
+        'MALL': (0, 0, 0),
         'ENTER': (1, 1, 1),
-        'P1': (1, 0.5, 0),
-        'P2': (1, 0.5, 0),
-        'P3': (1, 0.5, 0),
-        'P4': (1, 0.5, 0),
-        'EV': (1, 0.5, 0),
-        'D1': (1, 0.5, 0),
+        'P1': (0.5, 0.5, 0.5),
+        'P2': (0.5, 0.5, 0.5),
+        'P3': (0.5, 0.5, 0.5),
+        'P4': (0.5, 0.5, 0.5),
+        'EV': (0.5, 0.5, 0.5),
+        'D1': (0.5, 0.5, 0.5),
         'EXIT': (1, 1, 1)
     }
+
+    parking_top = ['P1', 'P2', 'D1']
+    parking_bottom = ['EV', 'P3', 'P4']
 
     for i in range(rows):
         for j in range(cols):
@@ -55,6 +59,8 @@ def plot_parking_lot(parking_lot, path_to_parking, path_to_exit, path_to_mall, c
 
     plt.figure(figsize=(6, 10))
     plt.imshow(grid, origin='upper')
+    plt.xticks([])  # Removes x-axis ticks and labels
+    plt.yticks([])  # Removes y-axis ticks and labels
 
     car_images = ['car1.png', 'car2.png', 'car3.png', 'car4.png']
     static_path = 'navigation/static/navigation'
@@ -62,12 +68,24 @@ def plot_parking_lot(parking_lot, path_to_parking, path_to_exit, path_to_mall, c
     # Place random car images on occupied slots
     for i, row in enumerate(parking_lot):
         for j, slot in enumerate(row):
+            if slot in parking_top:
+                car_img = mpimg.imread(os.path.join(static_path, "parking_top.png"))
+                plt.imshow(car_img, extent=(j-0.5, j+0.5, i-0.5, i+0.5))
+            if slot in parking_bottom:
+                car_img = mpimg.imread(os.path.join(static_path, "parking_bottom.png"))
+                plt.imshow(car_img, extent=(j-0.5, j+0.5, i-0.5, i+0.5))
+            if slot == "X":
+                car_img = mpimg.imread(os.path.join(static_path, "crosswalk.png"))
+                plt.imshow(car_img, extent=(j-0.4, j+0.4, i-0.3, i+0.3))
             if slot == "EXIT":
                 car_img = mpimg.imread(os.path.join(static_path, "exit.png"))
-                plt.imshow(car_img, extent=(j-0.4, j+0.4, i-0.3, i+0.3))
+                plt.imshow(car_img, extent=(j-0.4, j+0.4, i-0.2, i+0.2))
             if slot == "ENTER":
                 car_img = mpimg.imread(os.path.join(static_path, "entrance.png"))
-                plt.imshow(car_img, extent=(j-0.4, j+0.4, i-0.3, i+0.3))
+                plt.imshow(car_img, extent=(j-0.4, j+0.4, i-0.2, i+0.2))
+            if slot == "MALL":
+                car_img = mpimg.imread(os.path.join(static_path, "mall.png"))
+                plt.imshow(car_img, extent=(j-0.5, j+0.5, i-0.4, i+0.4))
             if slot in disabled_slots:
                 car_img = mpimg.imread(os.path.join(static_path, "disabled.png"))
                 plt.imshow(car_img, extent=(j-0.2, j+0.2, i-0.2, i+0.2))

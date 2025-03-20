@@ -19,6 +19,10 @@ from django.urls import path, include
 from django.views.generic import RedirectView
 from navigation.views import register
 
+admin.site.site_header = "ABCS Smart Paking System"
+admin.site.site_title = "ABCS Smart Paking System"
+admin.site.index_title = "Parking Navigation Administration"
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
