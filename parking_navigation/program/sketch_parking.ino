@@ -14,6 +14,8 @@ Servo servo_entry, servo_exit;
 // 5 = P4
 // 6 = P3
 // 7 = E1
+// Index 0 is unused so that index 1 corresponds to "P1", 2 to "P2", etc.
+const char* parking_ids[] = {"P1", "P2", "D1", "P4", "P3", "EV"};
 
 int IR_parking[6] = {2, 3, 4, 5, 6, 7};
 int parking_slot = 6;
@@ -50,7 +52,7 @@ void loop()
   
   // Print text on display
   lcd.setCursor(0,0);
-  lcd.print("    ABC Car   ");
+  lcd.print("   ABCS SMART   ");
   lcd.setCursor(0,1);
   lcd.print(" Parking System "); 
   delay(1000);
@@ -110,7 +112,8 @@ void checkParkingSlots() {
       Serial.println(" is occupied");
       parking_free--; // Deduct from free parking slots
     } else {
-      Msg_parking = Msg_parking + "#" + String(i+1) + " | ";
+      //Msg_parking = Msg_parking + "#" + String(i+1) + " | ";
+      Msg_parking = Msg_parking + parking_ids[i] + "|";
       Msg_available = Msg_available + String(i+1) + "|";
     }
   }
